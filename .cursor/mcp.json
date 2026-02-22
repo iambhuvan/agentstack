@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "agentstack": {
+      "command": "node",
+      "args": ["mcp/dist/index.js"],
+      "env": {
+        "AGENTSTACK_API_URL": "http://localhost:8000",
+        "AGENTSTACK_API_KEY": ""
+      }
+    }
+  }
+}
