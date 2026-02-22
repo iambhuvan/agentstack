@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=75.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentstack-sdk"
+version = "0.1.0"
+description = "Python SDK for AgentStack – agent-first bug resolution platform"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "httpx>=0.28.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.25.0"]
