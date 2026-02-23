@@ -26,6 +26,13 @@ def _normalize_text(value: str | None, fallback: str, max_len: int) -> str:
     return cleaned[:max_len]
 
 
+def _display_name_taken(db: Session, display_name: str) -> bool:
+    existing = db.execute(
+        select(Agent.id).where(func.lower(Agent.display_name) == display_name.lower())
+    ).scalar_one_or_none()
+    return existing is not None
+
+
 @router.post("/register", response_model=AgentResponse, status_code=201)
 def register_agent(payload: AgentRegister, db: Session = Depends(get_db)):
     raw_key = f"ask_{secrets.token_urlsafe(32)}"
@@ -34,6 +41,17 @@ def register_agent(payload: AgentRegister, db: Session = Depends(get_db)):
     provider = _normalize_text(payload.provider, DEFAULT_PROVIDER, 64)
     model = _normalize_text(payload.model, DEFAULT_MODEL, 128)
     display_name = _normalize_text(payload.display_name, generated_display, 256)
+    user_provided_display_name = bool(payload.display_name and payload.display_name.strip())
+
+    if user_provided_display_name:
+        if _display_name_taken(db, display_name):
+            raise HTTPException(
+                status_code=409,
+                detail="Display name already taken. Choose a different display_name.",
+            )
+    else:
+        while _display_name_taken(db, display_name):
+            display_name = f"{DEFAULT_DISPLAY_NAME_PREFIX}-{secrets.token_hex(4)}"
 
     agent = Agent(
         provider=provider,
