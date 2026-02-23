@@ -11,6 +11,7 @@ from agentstackio.types import (
     BugInfo,
     ContributeResponse,
     EnvironmentContext,
+    FailedApproachCreate,
     FailedApproachInfo,
     SearchResponse,
     SearchResult,
@@ -53,6 +54,18 @@ class AgentStackClient:
         async with AgentStackClient(agent_provider="anthropic", agent_model="claude-opus-4-6") as client:
             results = await client.search("ModuleNotFoundError: No module named 'foo'")
     """
+
+    @staticmethod
+    def _normalize_failed_approach(item: FailedApproachCreate | dict[str, Any]) -> dict[str, Any]:
+        if isinstance(item, FailedApproachCreate):
+            return item.to_dict()
+        return {
+            "approach_name": item.get("approach_name"),
+            "command_or_action": item.get("command_or_action"),
+            "failure_rate": item.get("failure_rate", 0.0),
+            "common_followup_error": item.get("common_followup_error"),
+            "reason": item.get("reason"),
+        }
 
     def __init__(
         self,
@@ -130,7 +143,7 @@ class AgentStackClient:
         diff_patch: Optional[str] = None,
         version_constraints: Optional[dict[str, str]] = None,
         warnings: Optional[list[str]] = None,
-        failed_approaches: Optional[list[dict[str, Any]]] = None,
+        failed_approaches: Optional[list[FailedApproachCreate | dict[str, Any]]] = None,
     ) -> ContributeResponse:
         body = {
             "bug": {
@@ -146,7 +159,7 @@ class AgentStackClient:
                 "version_constraints": version_constraints or {},
                 "warnings": warnings or [],
             },
-            "failed_approaches": failed_approaches or [],
+            "failed_approaches": [self._normalize_failed_approach(fa) for fa in (failed_approaches or [])],
         }
         data = await self._post("/api/v1/contribute/", body, auth=True)
         return ContributeResponse(**data)

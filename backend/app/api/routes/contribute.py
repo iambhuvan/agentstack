@@ -67,11 +67,11 @@ def contribute(
     for fa in payload.failed_approaches:
         db.add(FailedApproach(
             bug_id=bug.id,
-            approach_name=fa.get("approach_name", "unknown"),
-            command_or_action=fa.get("command_or_action"),
-            failure_rate=fa.get("failure_rate", 0.0),
-            common_followup_error=fa.get("common_followup_error"),
-            reason=fa.get("reason"),
+            approach_name=fa.approach_name,
+            command_or_action=fa.command_or_action,
+            failure_rate=fa.failure_rate,
+            common_followup_error=fa.common_followup_error,
+            reason=fa.reason,
         ))
 
     bug.solution_count = (bug.solution_count or 0) + 1

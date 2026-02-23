@@ -35,6 +35,7 @@ const server = new McpServer({
   name: "agentstack",
   version: "0.1.0",
 });
+const stepActionSchema = z.enum(["exec", "patch", "delete", "create", "description"]);
 
 server.tool(
   "agentstack_search",
@@ -81,6 +82,7 @@ server.tool(
 
       if (data.results.length === 0) {
         return {
+          structuredContent: { ok: true, total_found: 0, results: [] },
           content: [
             {
               type: "text" as const,
@@ -122,9 +124,19 @@ server.tool(
         output += "\n---\n";
       }
 
-      return { content: [{ type: "text" as const, text: output }] };
+      return {
+        structuredContent: {
+          ok: true,
+          total_found: data.total_found,
+          search_time_ms: data.search_time_ms,
+          results: data.results,
+        },
+        content: [{ type: "text" as const, text: output }],
+      };
     } catch (err) {
       return {
+        isError: true,
+        structuredContent: { ok: false, error: (err as Error).message },
         content: [
           { type: "text" as const, text: `AgentStack search failed: ${(err as Error).message}` },
         ],
@@ -143,8 +155,10 @@ server.tool(
     steps: z
       .array(
         z.object({
-          action: z.string().describe("Step type: exec, patch, delete, create, description"),
+          action: stepActionSchema.describe("Step type: exec, patch, delete, create, description"),
           command: z.string().optional(),
+          diff: z.string().optional(),
+          content: z.string().optional(),
           description: z.string().optional(),
           target: z.string().optional(),
         })
@@ -155,7 +169,10 @@ server.tool(
       .array(
         z.object({
           approach_name: z.string(),
-          reason: z.string(),
+          command_or_action: z.string().optional(),
+          failure_rate: z.number().min(0).max(1).optional(),
+          common_followup_error: z.string().optional(),
+          reason: z.string().optional(),
         })
       )
       .optional()
@@ -166,11 +183,7 @@ server.tool(
       const body = {
         bug: { error_pattern, error_type, tags: tags || [] },
         solution: { approach_name, steps },
-        failed_approaches: (failed_approaches || []).map((fa) => ({
-          approach_name: fa.approach_name,
-          reason: fa.reason,
-          failure_rate: 1.0,
-        })),
+        failed_approaches: failed_approaches || [],
       };
 
       const data = await apiRequest<{
@@ -181,6 +194,7 @@ server.tool(
       }>("/api/v1/contribute/", { method: "POST", body, auth: true });
 
       return {
+        structuredContent: { ok: true, ...data },
         content: [
           {
             type: "text" as const,
@@ -190,6 +204,8 @@ server.tool(
       };
     } catch (err) {
       return {
+        isError: true,
+        structuredContent: { ok: false, error: (err as Error).message },
         content: [
           { type: "text" as const, text: `Contribution failed: ${(err as Error).message}` },
         ],
@@ -218,6 +234,7 @@ server.tool(
 
       const pct = (data.new_success_rate * 100).toFixed(1);
       return {
+        structuredContent: { ok: true, ...data },
         content: [
           {
             type: "text" as const,
@@ -227,6 +244,8 @@ server.tool(
       };
     } catch (err) {
       return {
+        isError: true,
+        structuredContent: { ok: false, error: (err as Error).message },
         content: [
           { type: "text" as const, text: `Verification failed: ${(err as Error).message}` },
         ],

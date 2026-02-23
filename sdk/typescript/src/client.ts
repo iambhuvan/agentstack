@@ -2,6 +2,7 @@ import {
   AgentStackConfig,
   ContributeResponse,
   EnvironmentContext,
+  FailedApproachCreate,
   SearchResponse,
   SolutionStep,
   VerifyResponse,
@@ -31,6 +32,20 @@ function saveCredentials(agentId: string, apiKey: string, baseUrl: string) {
 }
 
 export class AgentStackClient {
+  private isSnakeCaseFailedApproach(
+    fa:
+      | {
+          approachName: string;
+          commandOrAction?: string;
+          failureRate?: number;
+          commonFollowupError?: string;
+          reason?: string;
+        }
+      | FailedApproachCreate
+  ): fa is FailedApproachCreate {
+    return "approach_name" in fa;
+  }
+
   private baseUrl: string;
   private apiKey: string | undefined;
   private agentModel: string;
@@ -38,6 +53,26 @@ export class AgentStackClient {
   private displayName: string;
   private timeout: number;
   private autoRegister: boolean;
+
+  private validateSolutionSteps(steps: SolutionStep[]) {
+    for (const step of steps) {
+      if (step.action === "exec" && !step.command) {
+        throw new Error("Invalid solution step: `command` is required for action `exec`");
+      }
+      if (step.action === "patch" && !step.diff && !step.target) {
+        throw new Error("Invalid solution step: `diff` or `target` is required for action `patch`");
+      }
+      if (step.action === "create" && (!step.target || !step.content)) {
+        throw new Error("Invalid solution step: `target` and `content` are required for action `create`");
+      }
+      if (step.action === "delete" && !step.target) {
+        throw new Error("Invalid solution step: `target` is required for action `delete`");
+      }
+      if (step.action === "description" && !step.description) {
+        throw new Error("Invalid solution step: `description` is required for action `description`");
+      }
+    }
+  }
 
   /**
    * Create an AgentStack client.
@@ -117,14 +152,19 @@ export class AgentStackClient {
       versionConstraints?: Record<string, string>;
       warnings?: string[];
     },
-    failedApproaches: Array<{
-      approachName: string;
-      commandOrAction?: string;
-      failureRate?: number;
-      reason?: string;
-    }> = []
+    failedApproaches: Array<
+      | {
+          approachName: string;
+          commandOrAction?: string;
+          failureRate?: number;
+          commonFollowupError?: string;
+          reason?: string;
+        }
+      | FailedApproachCreate
+    > = []
   ): Promise<ContributeResponse> {
     await this.ensureRegistered();
+    this.validateSolutionSteps(solution.steps);
     return this.request<ContributeResponse>("/api/v1/contribute/", {
       method: "POST",
       auth: true,
@@ -142,12 +182,24 @@ export class AgentStackClient {
           version_constraints: solution.versionConstraints || {},
           warnings: solution.warnings || [],
         },
-        failed_approaches: failedApproaches.map((fa) => ({
-          approach_name: fa.approachName,
-          command_or_action: fa.commandOrAction,
-          failure_rate: fa.failureRate || 0,
-          reason: fa.reason,
-        })),
+        failed_approaches: failedApproaches.map((fa) => {
+          if (this.isSnakeCaseFailedApproach(fa)) {
+            return {
+              approach_name: fa.approach_name,
+              command_or_action: fa.command_or_action,
+              failure_rate: fa.failure_rate ?? 0,
+              common_followup_error: fa.common_followup_error,
+              reason: fa.reason,
+            };
+          }
+          return {
+            approach_name: fa.approachName,
+            command_or_action: fa.commandOrAction,
+            failure_rate: fa.failureRate || 0,
+            common_followup_error: fa.commonFollowupError,
+            reason: fa.reason,
+          };
+        }),
       },
     });
   }

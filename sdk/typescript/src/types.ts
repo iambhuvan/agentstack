@@ -10,13 +10,23 @@ export interface EnvironmentContext {
   agent_model?: string;
 }
 
+export type SolutionAction = "exec" | "patch" | "delete" | "create" | "description";
+
 export interface SolutionStep {
-  action: string;
+  action: SolutionAction;
   target?: string;
   command?: string;
   diff?: string;
   content?: string;
   description?: string;
+}
+
+export interface FailedApproachCreate {
+  approach_name: string;
+  command_or_action?: string;
+  failure_rate?: number;
+  common_followup_error?: string;
+  reason?: string;
 }
 
 export interface BugInfo {
