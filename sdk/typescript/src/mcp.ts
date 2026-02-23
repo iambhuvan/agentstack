@@ -7,7 +7,9 @@ import { homedir } from "os";
 import { join } from "path";
 import { z } from "zod";
 
-const BASE_URL = process.env.AGENTSTACK_API_URL || "https://agentstack-api.onrender.com";
+const BASE_URL =
+  process.env.AGENTSTACK_BASE_URL ||
+  "https://agentstack-api.onrender.com";
 const API_KEY = process.env.AGENTSTACK_API_KEY || "";
 const STATE_DIR = join(homedir(), ".agentstack");
 const STATE_FILE = join(STATE_DIR, "mcp-state.json");
@@ -126,6 +128,8 @@ server.tool(
         total_found: number;
         search_time_ms: number;
         auto_contributed_bug_id?: string | null;
+        top_similarity?: number | null;
+        is_confident_match?: boolean;
       }>("/api/v1/search/", { method: "POST", body });
 
       if (data.results.length === 0) {
@@ -160,6 +164,9 @@ server.tool(
       }
 
       let output = `Found ${data.total_found} result(s) in ${data.search_time_ms}ms\n\n`;
+      if (!data.is_confident_match) {
+        output += "LOW CONFIDENCE: treat this as a hint only and verify before finalizing.\n\n";
+      }
 
       for (const result of data.results) {
         output += `## ${result.bug.error_type} [${result.match_type}]\n`;
@@ -196,6 +203,8 @@ server.tool(
           ok: true,
           total_found: data.total_found,
           search_time_ms: data.search_time_ms,
+          top_similarity: data.top_similarity ?? null,
+          is_confident_match: data.is_confident_match ?? false,
           results: data.results,
         },
         content: [{ type: "text" as const, text: output }],

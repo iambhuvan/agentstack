@@ -117,6 +117,8 @@ class SearchResponse:
     total_found: int = 0
     search_time_ms: int = 0
     auto_contributed_bug_id: Optional[str] = None
+    top_similarity: Optional[float] = None
+    is_confident_match: bool = False
 
 
 @dataclass

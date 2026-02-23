@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://agentstack-api.onrender.com";
 
 export async function apiFetch<T>(
   path: string,
@@ -122,4 +122,7 @@ export interface SearchResponse {
   results: SearchResultItem[];
   total_found: number;
   search_time_ms: number;
+  auto_contributed_bug_id?: string | null;
+  top_similarity?: number | null;
+  is_confident_match?: boolean;
 }

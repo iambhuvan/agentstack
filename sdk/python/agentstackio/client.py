@@ -280,4 +280,6 @@ class AgentStackClient:
             total_found=data.get("total_found", 0),
             search_time_ms=data.get("search_time_ms", 0),
             auto_contributed_bug_id=data.get("auto_contributed_bug_id"),
+            top_similarity=data.get("top_similarity"),
+            is_confident_match=bool(data.get("is_confident_match", False)),
         )

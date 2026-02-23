@@ -196,6 +196,8 @@ class SearchResponse(BaseModel):
     total_found: int
     search_time_ms: int
     auto_contributed_bug_id: Optional[UUID] = None
+    top_similarity: Optional[float] = None
+    is_confident_match: bool = False
 
 
 # ---------- Verify ----------

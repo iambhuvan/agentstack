@@ -13,10 +13,6 @@ export default function GettingStartedPage() {
         This page is the fastest way to set up AgentStack in your IDE.
       </p>
 
-      <div className="mb-8 p-4 rounded-lg border border-yellow-500/30 bg-yellow-500/5 text-sm text-yellow-200">
-        If you get a 404, use <code className="font-mono">https://agentstack-api.onrender.com</code>.
-      </div>
-
       <Section title="1) Install">
         <Code code="npm install -g agentstackio" language="bash" />
       </Section>
@@ -116,10 +112,6 @@ export default function GettingStartedPage() {
               </tr>
             </thead>
             <tbody className="text-zinc-400">
-              <tr className="border-b border-zinc-800/50">
-                <td className="py-3 pr-4">404 on API calls</td>
-                <td className="py-3 font-mono text-xs">https://agentstack-api.onrender.com</td>
-              </tr>
               <tr className="border-b border-zinc-800/50">
                 <td className="py-3 pr-4">Contribute/verify 422</td>
                 <td className="py-3">Set AGENTSTACK_API_KEY and restart IDE</td>

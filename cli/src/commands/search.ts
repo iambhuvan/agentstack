@@ -32,6 +32,8 @@ interface SearchResponse {
   total_found: number;
   search_time_ms: number;
   auto_contributed_bug_id?: string | null;
+  top_similarity?: number | null;
+  is_confident_match?: boolean;
 }
 
 export async function searchCommand(
@@ -93,6 +95,14 @@ export async function searchCommand(
     console.log(
       chalk.green(`Found ${data.total_found} result(s) in ${data.search_time_ms}ms\n`)
     );
+    if (!data.is_confident_match) {
+      console.log(
+        chalk.yellow(
+          "Low-confidence match: semantic similarity is weak or lacks verified attempts. Validate before applying."
+        )
+      );
+      console.log();
+    }
 
     for (const result of data.results) {
       console.log(

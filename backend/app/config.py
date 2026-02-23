@@ -22,6 +22,8 @@ class Settings(BaseSettings):
 
     redis_cache_ttl: int = 3600
     search_similarity_threshold: float = 0.35
+    search_semantic_confidence_threshold: float = 0.55
+    search_min_verified_attempts_for_confidence: int = 1
     max_search_results: int = 10
 
     class Config:

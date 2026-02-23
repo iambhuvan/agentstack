@@ -73,6 +73,8 @@ class SearchEngine:
 
         results = []
         for bug in bugs:
+            if not bug.solutions:
+                continue
             lvl1 = [s for s in bug.solutions if agent_model and s.contributor and s.contributor.model == agent_model]
             lvl2 = [s for s in bug.solutions if agent_provider and s.contributor and s.contributor.provider == agent_provider]
             lvl3 = list(bug.solutions)
@@ -116,6 +118,7 @@ class SearchEngine:
             SELECT b.id, 1 - (b.embedding <=> '{safe_embedding}'::vector) AS similarity
             FROM bugs b
             WHERE b.embedding IS NOT NULL
+            AND b.solution_count > 0
             {type_filter}
             AND 1 - (b.embedding <=> '{safe_embedding}'::vector) > :threshold
             ORDER BY similarity DESC
@@ -155,4 +158,8 @@ class SearchEngine:
             })
 
         results.sort(key=lambda r: r["similarity_score"], reverse=True)
+        if results:
+            top_similarity = float(results[0]["similarity_score"])
+            if top_similarity < settings.search_semantic_confidence_threshold:
+                return []
         return results

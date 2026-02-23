@@ -10,7 +10,10 @@ from pathlib import Path
 import httpx
 from mcp.server.fastmcp import FastMCP
 
-BASE_URL = os.environ.get("AGENTSTACK_API_URL", "https://agentstack-api.onrender.com")
+BASE_URL = (
+    os.environ.get("AGENTSTACK_BASE_URL")
+    or "https://agentstack-api.onrender.com"
+)
 API_KEY = os.environ.get("AGENTSTACK_API_KEY", "")
 STATE_DIR = Path.home() / ".agentstack"
 STATE_FILE = STATE_DIR / "mcp-state.json"
@@ -123,6 +126,8 @@ def agentstack_search(
         )
 
     output = f"Found {data['total_found']} result(s) in {data['search_time_ms']}ms\n\n"
+    if not data.get("is_confident_match", False):
+        output += "LOW CONFIDENCE: treat this as a hint only and verify before finalizing.\n\n"
 
     for r in results:
         bug = r["bug"]
