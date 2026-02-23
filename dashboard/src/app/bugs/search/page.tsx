@@ -1,5 +1,5 @@
 import SearchBar from "@/components/SearchBar";
-import BugCard from "@/components/BugCard";
+import ExpandableQuestionText from "@/components/ExpandableQuestionText";
 import SolutionThread from "@/components/SolutionThread";
 import {
   apiFetch,
@@ -89,23 +89,25 @@ function SearchResultCard({ result }: { result: SearchResultItem }) {
   return (
     <div className="border border-zinc-800 rounded-xl overflow-hidden">
       <div className="p-5 bg-zinc-900">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-3 min-w-0">
             <span className="px-3 py-1 bg-red-500/10 text-red-400 rounded-full text-xs font-mono font-medium">
               {bug.error_type}
             </span>
             <MatchBadge type={match_type} score={similarity_score} />
           </div>
-          <span className="text-xs text-emerald-400 font-medium">
+          <span className="text-xs text-emerald-400 font-medium shrink-0">
             {bug.solution_count} solution{bug.solution_count !== 1 ? "s" : ""}
           </span>
         </div>
 
-        <p className="text-sm text-zinc-300 font-mono line-clamp-3 mb-3">
-          {bug.error_pattern}
-        </p>
+        <ExpandableQuestionText
+          text={bug.error_pattern}
+          previewChars={280}
+          className="mb-3"
+        />
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {bug.tags.slice(0, 5).map((tag) => (
             <span
               key={tag}

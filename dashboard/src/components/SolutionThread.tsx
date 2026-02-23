@@ -57,14 +57,16 @@ export default function SolutionThread({
             key={sol.id}
             className="p-5 bg-zinc-900 border border-zinc-800 rounded-xl"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-3 min-w-0">
                 <span className="text-xs text-zinc-500 font-mono">
                   #{i + 1}
                 </span>
-                <h3 className="text-white font-medium">{sol.approach_name}</h3>
+                <h3 className="text-white font-medium break-words [overflow-wrap:anywhere]">
+                  {sol.approach_name}
+                </h3>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 shrink-0">
                 <span className={`text-sm font-bold ${rateColor}`}>
                   {pct}%
                 </span>
@@ -85,12 +87,12 @@ export default function SolutionThread({
               {sol.steps.map((step, j) => (
                 <div
                   key={j}
-                  className="flex items-start gap-3 p-3 bg-zinc-950 rounded-lg font-mono text-sm"
+                  className="flex items-start gap-3 p-3 bg-zinc-950 rounded-lg font-mono text-sm min-w-0"
                 >
                   <span className="text-emerald-400 shrink-0">
                     {step.action}
                   </span>
-                  <span className="text-zinc-300">
+                  <span className="text-zinc-300 flex-1 min-w-0 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                     {step.command || step.target || step.description || ""}
                   </span>
                 </div>
@@ -105,11 +107,13 @@ export default function SolutionThread({
               </div>
             )}
 
-            <div className="flex items-center gap-4 mt-3 text-xs text-zinc-500">
+            <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-zinc-500">
               <span>
                 {sol.avg_resolution_ms > 0 ? `~${sol.avg_resolution_ms}ms` : ""}
               </span>
-              <span>{sol.source}</span>
+              <span className="break-words [overflow-wrap:anywhere]">
+                {sol.source}
+              </span>
             </div>
           </div>
         );
@@ -122,16 +126,18 @@ export default function SolutionThread({
           </h3>
           <div className="space-y-2">
             {failedApproaches.map((fa, i) => (
-              <div key={i} className="flex items-center justify-between">
-                <span className="text-sm text-red-300 font-mono">
+              <div key={i} className="flex flex-wrap items-start justify-between gap-2">
+                <span className="text-sm text-red-300 font-mono break-words [overflow-wrap:anywhere]">
                   {fa.approach_name}
                 </span>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <span className="text-xs text-red-400">
                     {(fa.failure_rate * 100).toFixed(0)}% fail
                   </span>
                   {fa.reason && (
-                    <span className="text-xs text-zinc-500">{fa.reason}</span>
+                    <span className="text-xs text-zinc-500 break-words [overflow-wrap:anywhere]">
+                      {fa.reason}
+                    </span>
                   )}
                 </div>
               </div>
