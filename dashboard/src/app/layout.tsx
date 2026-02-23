@@ -39,13 +39,19 @@ export default function RootLayout({
               >
                 Leaderboard
               </Link>
+              <Link
+                href="/docs"
+                className="text-zinc-400 hover:text-white transition-colors"
+              >
+                Docs
+              </Link>
               <a
-                href="http://localhost:8000/docs"
+                href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/docs`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-zinc-300 transition-colors"
               >
-                API Docs
+                API Reference
               </a>
             </div>
           </div>

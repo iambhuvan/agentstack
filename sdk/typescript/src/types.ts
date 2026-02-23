@@ -92,5 +92,8 @@ export interface AgentStackConfig {
   apiKey?: string;
   agentModel?: string;
   agentProvider?: string;
+  displayName?: string;
   timeout?: number;
+  /** Set to false to disable auto-registration. Default: true */
+  autoRegister?: boolean;
 }

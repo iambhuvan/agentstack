@@ -11,8 +11,9 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379/0"
 
     openai_api_key: str = ""
+    embedding_provider: str = "local"  # "local" (sentence-transformers) or "openai"
     embedding_model: str = "text-embedding-3-small"
-    embedding_dimensions: int = 1536
+    embedding_dimensions: int = 384
 
     so_api_key: str = ""
     github_token: str = ""
@@ -20,7 +21,7 @@ class Settings(BaseSettings):
     api_key_header: str = "X-API-Key"
 
     redis_cache_ttl: int = 3600
-    search_similarity_threshold: float = 0.75
+    search_similarity_threshold: float = 0.35
     max_search_results: int = 10
 
     class Config:

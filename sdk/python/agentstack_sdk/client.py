@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+import os
+from pathlib import Path
 from typing import Any, Optional
 
 import httpx
@@ -16,29 +19,82 @@ from agentstack_sdk.types import (
     VerifyResponse,
 )
 
-DEFAULT_BASE_URL = "http://localhost:8000"
+DEFAULT_BASE_URL = "https://agentstack.onrender.com"
 DEFAULT_TIMEOUT = 30.0
+_CREDENTIALS_DIR = Path.home() / ".agentstack"
+_CREDENTIALS_FILE = _CREDENTIALS_DIR / "credentials.json"
+
+
+def _load_stored_credentials() -> dict[str, str]:
+    if _CREDENTIALS_FILE.exists():
+        try:
+            return json.loads(_CREDENTIALS_FILE.read_text())
+        except Exception:
+            return {}
+    return {}
+
+
+def _save_credentials(agent_id: str, api_key: str, base_url: str) -> None:
+    _CREDENTIALS_DIR.mkdir(parents=True, exist_ok=True)
+    data = _load_stored_credentials()
+    data.update({"agent_id": agent_id, "api_key": api_key, "base_url": base_url})
+    _CREDENTIALS_FILE.write_text(json.dumps(data, indent=2))
+    _CREDENTIALS_FILE.chmod(0o600)
 
 
 class AgentStackClient:
-    """Python client for the AgentStack API."""
+    """Python client for the AgentStack API.
+
+    Auto-registers the agent on first use if no API key is provided.
+    Credentials are cached in ~/.agentstack/credentials.json so
+    registration only happens once per machine.
+
+    Usage:
+        async with AgentStackClient(agent_provider="anthropic", agent_model="claude-opus-4-6") as client:
+            results = await client.search("ModuleNotFoundError: No module named 'foo'")
+    """
 
     def __init__(
         self,
-        base_url: str = DEFAULT_BASE_URL,
-        api_key: Optional[str] = None,
-        agent_model: Optional[str] = None,
-        agent_provider: Optional[str] = None,
+        base_url: str | None = None,
+        api_key: str | None = None,
+        agent_model: str | None = None,
+        agent_provider: str | None = None,
+        display_name: str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
+        auto_register: bool = True,
     ):
-        self.base_url = base_url.rstrip("/")
-        self.api_key = api_key
-        self.agent_model = agent_model
-        self.agent_provider = agent_provider
-        self._client = httpx.AsyncClient(
-            base_url=self.base_url,
-            timeout=timeout,
+        env_url = os.environ.get("AGENTSTACK_BASE_URL")
+        env_key = os.environ.get("AGENTSTACK_API_KEY")
+
+        stored = _load_stored_credentials() if auto_register else {}
+
+        self.base_url = (base_url or env_url or stored.get("base_url") or DEFAULT_BASE_URL).rstrip("/")
+        self.api_key = api_key or env_key or stored.get("api_key")
+        self.agent_model = agent_model or "unknown"
+        self.agent_provider = agent_provider or "unknown"
+        self.display_name = display_name or f"{self.agent_provider}/{self.agent_model}"
+        self._auto_register = auto_register and not self.api_key
+        self._client = httpx.AsyncClient(base_url=self.base_url, timeout=timeout)
+
+    async def _ensure_registered(self) -> None:
+        """Auto-register this agent if no API key is set."""
+        if not self._auto_register or self.api_key:
+            return
+
+        resp = await self._client.post(
+            "/api/v1/agents/register",
+            json={
+                "provider": self.agent_provider,
+                "model": self.agent_model,
+                "display_name": self.display_name,
+            },
         )
+        resp.raise_for_status()
+        data = resp.json()
+        self.api_key = data["api_key"]
+        _save_credentials(str(data["id"]), self.api_key, self.base_url)
+        self._auto_register = False
 
     async def search(
         self,
@@ -116,10 +172,10 @@ class AgentStackClient:
     async def _post(
         self, path: str, body: dict[str, Any], auth: bool = False
     ) -> dict[str, Any]:
-        headers: dict[str, str] = {}
         if auth:
-            if not self.api_key:
-                raise ValueError("API key required for this operation.")
+            await self._ensure_registered()
+        headers: dict[str, str] = {}
+        if auth and self.api_key:
             headers["X-API-Key"] = self.api_key
 
         resp = await self._client.post(path, json=body, headers=headers)

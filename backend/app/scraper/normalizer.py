@@ -10,7 +10,7 @@ import logging
 import re
 from typing import Any
 
-from app.core.embeddings import generate_embedding
+from app.core.embeddings import generate_embedding, generate_embeddings_batch
 from app.core.fingerprint import fingerprint
 
 logger = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ def _detect_error_type(text: str) -> str:
     return "Unknown"
 
 
-def normalize_so_question(raw: dict[str, Any]) -> dict[str, Any] | None:
+def normalize_so_question(raw: dict[str, Any], embedding: list[float] | None = None) -> dict[str, Any] | None:
     """Convert a raw Stack Overflow question + answers into AgentStack schema."""
     title = _strip_html(raw.get("title", ""))
     body = _strip_html(raw.get("body", ""))
@@ -76,7 +76,8 @@ def normalize_so_question(raw: dict[str, Any]) -> dict[str, Any] | None:
 
     error_type = _detect_error_type(error_text)
     normalized_error, shash = fingerprint(error_text)
-    embedding = generate_embedding(normalized_error)
+    if embedding is None:
+        embedding = generate_embedding(normalized_error)
 
     answers = raw.get("answers", [])
     accepted = [a for a in answers if a.get("is_accepted")]
@@ -181,8 +182,11 @@ def normalize_gh_issue(raw: dict[str, Any]) -> dict[str, Any] | None:
 def normalize_batch(
     raw_items: list[dict[str, Any]], source_type: str
 ) -> list[dict[str, Any]]:
-    """Normalize a batch of raw items, skipping any that fail."""
-    normalizer = normalize_so_question if source_type == "stackoverflow" else normalize_gh_issue
+    """Normalize a batch of raw items with batched embedding generation."""
+    if source_type == "stackoverflow":
+        return _normalize_so_batch(raw_items)
+
+    normalizer = normalize_gh_issue
     results = []
     seen_hashes: set[str] = set()
 
@@ -196,4 +200,34 @@ def normalize_batch(
             logger.warning("Failed to normalize item: %s", e)
 
     logger.info("Normalized %d/%d items from %s", len(results), len(raw_items), source_type)
+    return results
+
+
+def _normalize_so_batch(raw_items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Normalize SO questions with batched embedding generation."""
+    texts_for_embedding = []
+    for item in raw_items:
+        title = _strip_html(item.get("title", ""))
+        body = _strip_html(item.get("body", ""))
+        error_text = f"{title}\n{body}"
+        normalized_error, _ = fingerprint(error_text)
+        texts_for_embedding.append(normalized_error)
+
+    logger.info("Generating embeddings for %d items in batch...", len(texts_for_embedding))
+    embeddings = generate_embeddings_batch(texts_for_embedding)
+    logger.info("Embeddings generated, normalizing items...")
+
+    results = []
+    seen_hashes: set[str] = set()
+
+    for item, emb in zip(raw_items, embeddings):
+        try:
+            normalized = normalize_so_question(item, embedding=emb)
+            if normalized and normalized["structural_hash"] not in seen_hashes:
+                seen_hashes.add(normalized["structural_hash"])
+                results.append(normalized)
+        except Exception as e:
+            logger.warning("Failed to normalize item: %s", e)
+
+    logger.info("Normalized %d/%d items from stackoverflow", len(results), len(raw_items))
     return results

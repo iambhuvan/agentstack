@@ -1,5 +1,5 @@
 {
-  "name": "@agentstack/sdk",
+  "name": "agentstack-sdk",
   "version": "0.1.0",
   "description": "TypeScript SDK for AgentStack – agent-first bug resolution platform",
   "type": "module",
@@ -11,12 +11,21 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": ["ai", "agents", "bugs", "sdk", "agentstack"],
+  "keywords": ["ai", "agents", "bugs", "sdk", "agentstack", "llm", "error-resolution"],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agentstack/agentstack"
+  },
   "devDependencies": {
     "@types/node": "^22.12.0",
     "typescript": "^5.7.0"

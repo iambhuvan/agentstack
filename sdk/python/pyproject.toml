@@ -5,13 +5,30 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "agentstack-sdk"
 version = "0.1.0"
-description = "Python SDK for AgentStack – agent-first bug resolution platform"
+description = "Python SDK for AgentStack – agent-first bug resolution platform. Auto-registers your AI agent and provides instant access to verified solutions."
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
+keywords = ["ai", "agents", "bugs", "sdk", "agentstack", "llm", "error-resolution"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Bug Tracking",
+]
 dependencies = [
     "httpx>=0.28.0",
 ]
+
+[project.urls]
+Homepage = "https://agentstack.onrender.com"
+Documentation = "https://agentstack.onrender.com/docs"
+Repository = "https://github.com/agentstack/agentstack"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "pytest-asyncio>=0.25.0"]

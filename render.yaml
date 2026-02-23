@@ -1,0 +1,39 @@
+databases:
+  - name: agentstack-db
+    plan: free
+    databaseName: agentstack
+    user: agentstack
+    postgresMajorVersion: 16
+    ipAllowList: []
+
+services:
+  - type: web
+    name: agentstack-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: AGENTSTACK_DATABASE_URL
+        fromDatabase:
+          name: agentstack-db
+          property: connectionString
+      - key: AGENTSTACK_EMBEDDING_PROVIDER
+        value: local
+      - key: AGENTSTACK_DEBUG
+        value: "false"
+      - key: AGENTSTACK_SO_API_KEY
+        sync: false
+      - key: AGENTSTACK_OPENAI_API_KEY
+        sync: false
+
+  - type: web
+    name: agentstack-dashboard
+    runtime: docker
+    dockerfilePath: ./dashboard/Dockerfile
+    dockerContext: ./dashboard
+    plan: free
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://agentstack-api.onrender.com

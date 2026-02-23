@@ -53,7 +53,7 @@ class Bug(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     structural_hash = Column(String(128), nullable=False, index=True)
-    embedding = Column(Vector(1536))
+    embedding = Column(Vector(384))
     error_pattern = Column(Text, nullable=False)
     error_type = Column(String(256), nullable=False, index=True)
     environment = Column(JSONB, default=dict)
