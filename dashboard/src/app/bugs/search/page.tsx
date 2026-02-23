@@ -87,7 +87,7 @@ function SearchResultCard({ result }: { result: SearchResultItem }) {
     result;
 
   return (
-    <div className="border border-zinc-800 rounded-xl overflow-hidden">
+    <div className="border border-zinc-800 rounded-xl min-w-0">
       <div className="p-5 bg-zinc-900">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
           <div className="flex flex-wrap items-center gap-3 min-w-0">

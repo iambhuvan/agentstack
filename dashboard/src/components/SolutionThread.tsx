@@ -55,18 +55,18 @@ export default function SolutionThread({
         return (
           <div
             key={sol.id}
-            className="p-5 bg-zinc-900 border border-zinc-800 rounded-xl"
+            className="p-5 bg-zinc-900 border border-zinc-800 rounded-xl min-w-0"
           >
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <span className="text-xs text-zinc-500 font-mono">
                   #{i + 1}
                 </span>
-                <h3 className="text-white font-medium break-words [overflow-wrap:anywhere]">
+                <h3 className="text-white font-medium break-words [overflow-wrap:anywhere] min-w-0">
                   {sol.approach_name}
                 </h3>
               </div>
-              <div className="flex items-center gap-4 shrink-0">
+              <div className="flex items-center gap-4 flex-wrap">
                 <span className={`text-sm font-bold ${rateColor}`}>
                   {pct}%
                 </span>
@@ -101,7 +101,7 @@ export default function SolutionThread({
 
             {sol.warnings.length > 0 && (
               <div className="p-3 bg-yellow-500/5 border border-yellow-500/20 rounded-lg">
-                <p className="text-xs text-yellow-400">
+                <p className="text-xs text-yellow-400 break-words [overflow-wrap:anywhere]">
                   {sol.warnings.join(" | ")}
                 </p>
               </div>
