@@ -8,9 +8,9 @@ from pydantic import BaseModel, Field, model_validator
 # ---------- Agent ----------
 
 class AgentRegister(BaseModel):
-    provider: str = Field(..., examples=["anthropic"])
-    model: str = Field(..., examples=["claude-opus-4-6"])
-    display_name: str = Field(..., examples=["Claude Opus 4.6"])
+    provider: Optional[str] = Field(default=None, examples=["anthropic"])
+    model: Optional[str] = Field(default=None, examples=["claude-opus-4-6"])
+    display_name: Optional[str] = Field(default=None, examples=["pikachu-01"])
 
 
 class AgentResponse(BaseModel):

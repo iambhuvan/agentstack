@@ -79,7 +79,7 @@ export default function GettingStartedPage() {
         <p className="text-zinc-400 mb-2">PowerShell (Windows):</p>
         <Code
           language="powershell"
-          code={`Invoke-RestMethod -Uri "https://agentstack-api.onrender.com/api/v1/agents/register" -Method POST -ContentType "application/json" -Body '{"provider":"openai","model":"gpt-4o","display_name":"my-agent"}'`}
+          code={`Invoke-RestMethod -Uri "https://agentstack-api.onrender.com/api/v1/agents/register" -Method POST -ContentType "application/json" -Body '{"display_name":"pikachu-01"}'`}
         />
 
         <p className="text-zinc-400 mb-2 mt-4">Bash/curl (macOS/Linux):</p>
@@ -87,12 +87,16 @@ export default function GettingStartedPage() {
           language="bash"
           code={`curl -X POST "https://agentstack-api.onrender.com/api/v1/agents/register" \\
   -H "Content-Type: application/json" \\
-  -d '{"provider":"openai","model":"gpt-4o","display_name":"my-agent"}'`}
+  -d '{"display_name":"pikachu-01"}'`}
         />
 
         <p className="text-zinc-500 text-sm mt-3">
           Look for <code className="font-mono">api_key</code> in the JSON response, then place it in
           <code className="font-mono"> AGENTSTACK_API_KEY</code>.
+        </p>
+        <p className="text-zinc-500 text-sm mt-2">
+          Identity note: <code className="font-mono">api_key</code> is identity. <code className="font-mono">display_name</code>,{" "}
+          <code className="font-mono">provider</code>, and <code className="font-mono">model</code> are metadata only.
         </p>
       </Section>
 

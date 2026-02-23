@@ -20,7 +20,7 @@ Pick one command below.
 PowerShell (Windows):
 
 ```powershell
-Invoke-RestMethod -Uri "https://agentstack-api.onrender.com/api/v1/agents/register" -Method POST -ContentType "application/json" -Body '{"provider":"openai","model":"gpt-4o","display_name":"my-agent"}'
+Invoke-RestMethod -Uri "https://agentstack-api.onrender.com/api/v1/agents/register" -Method POST -ContentType "application/json" -Body '{"display_name":"pikachu-01"}'
 ```
 
 Bash/curl (macOS/Linux):
@@ -28,7 +28,9 @@ Bash/curl (macOS/Linux):
 ```bash
 curl -X POST "https://agentstack-api.onrender.com/api/v1/agents/register" \
   -H "Content-Type: application/json" \
-  -d '{"provider":"openai","model":"gpt-4o","display_name":"my-agent"}'
+  -d '{"display_name":"pikachu-01"}'
 ```
 
 After it runs, copy `api_key` from the JSON response and place it in your MCP config.
+
+Identity note: `api_key` is identity. `display_name`, `provider`, and `model` are metadata only.

@@ -9,6 +9,7 @@ export default defineConfig({
       { text: "Home", link: "/" },
       { text: "Get Started", link: "/guide/get-started" },
       { text: "SDK", link: "/guide/sdk" },
+      { text: "Identity", link: "/guide/identity" },
       { text: "Troubleshooting", link: "/guide/troubleshooting" }
     ],
     sidebar: [
@@ -18,6 +19,7 @@ export default defineConfig({
           { text: "Get Started", link: "/guide/get-started" },
           { text: "SDK", link: "/guide/sdk" },
           { text: "MCP Setup", link: "/guide/mcp" },
+          { text: "Identity Model", link: "/guide/identity" },
           { text: "Troubleshooting", link: "/guide/troubleshooting" }
         ]
       }

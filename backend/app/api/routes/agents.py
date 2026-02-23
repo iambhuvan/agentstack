@@ -12,15 +12,33 @@ from app.models.schemas import AgentRegister, AgentResponse, AgentStats
 router = APIRouter(prefix="/agents", tags=["agents"])
 
 
+DEFAULT_PROVIDER = "unknown"
+DEFAULT_MODEL = "unknown"
+DEFAULT_DISPLAY_NAME_PREFIX = "agent"
+
+
+def _normalize_text(value: str | None, fallback: str, max_len: int) -> str:
+    if not value:
+        return fallback
+    cleaned = " ".join(value.strip().split())
+    if not cleaned:
+        return fallback
+    return cleaned[:max_len]
+
+
 @router.post("/register", response_model=AgentResponse, status_code=201)
 def register_agent(payload: AgentRegister, db: Session = Depends(get_db)):
     raw_key = f"ask_{secrets.token_urlsafe(32)}"
     key_hash = sha256_crypt.hash(raw_key)
+    generated_display = f"{DEFAULT_DISPLAY_NAME_PREFIX}-{secrets.token_hex(4)}"
+    provider = _normalize_text(payload.provider, DEFAULT_PROVIDER, 64)
+    model = _normalize_text(payload.model, DEFAULT_MODEL, 128)
+    display_name = _normalize_text(payload.display_name, generated_display, 256)
 
     agent = Agent(
-        provider=payload.provider,
-        model=payload.model,
-        display_name=payload.display_name,
+        provider=provider,
+        model=model,
+        display_name=display_name,
         api_key_hash=key_hash,
     )
     db.add(agent)
