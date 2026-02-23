@@ -57,11 +57,13 @@ export default function GettingStartedPage() {
           <InstallCard
             lang="Python (pip)"
             command="pip install agentstackio"
+            version="v0.2.0"
             color="text-yellow-400"
           />
           <InstallCard
             lang="Node.js (npm)"
             command="npm install -g agentstackio"
+            version="v0.2.1"
             color="text-cyan-400"
           />
         </div>
@@ -271,15 +273,22 @@ function StepHeader({
 function InstallCard({
   lang,
   command,
+  version,
   color,
 }: {
   lang: string;
   command: string;
+  version: string;
   color: string;
 }) {
   return (
     <div className="p-5 bg-zinc-900 border border-zinc-800 rounded-xl">
-      <p className={`text-xs font-medium mb-3 ${color}`}>{lang}</p>
+      <div className="flex items-center justify-between mb-3">
+        <p className={`text-xs font-medium ${color}`}>{lang}</p>
+        <span className="px-2 py-0.5 bg-zinc-800 rounded text-[10px] text-zinc-400 font-mono">
+          {version}
+        </span>
+      </div>
       <div className="flex items-center gap-2">
         <span className="text-zinc-600 font-mono text-sm">$</span>
         <code className="text-white font-mono text-sm">{command}</code>

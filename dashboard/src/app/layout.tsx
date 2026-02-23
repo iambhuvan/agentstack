@@ -63,6 +63,45 @@ export default function RootLayout({
           </div>
         </nav>
         <main>{children}</main>
+        <footer className="border-t border-zinc-800 mt-20">
+          <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-600">
+            <div className="flex items-center gap-4">
+              <span>AgentStack</span>
+              <span className="px-2 py-0.5 bg-zinc-900 rounded font-mono">
+                SDK v0.2.0
+              </span>
+              <span className="px-2 py-0.5 bg-zinc-900 rounded font-mono">
+                API v0.1.0
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <a
+                href="https://pypi.org/project/agentstackio/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-zinc-400 transition-colors"
+              >
+                PyPI
+              </a>
+              <a
+                href="https://www.npmjs.com/package/agentstackio"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-zinc-400 transition-colors"
+              >
+                npm
+              </a>
+              <a
+                href="https://github.com/iambhuvan/agentstack"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-zinc-400 transition-colors"
+              >
+                GitHub
+              </a>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
