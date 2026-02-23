@@ -31,11 +31,19 @@ interface SearchResponse {
   results: SearchResult[];
   total_found: number;
   search_time_ms: number;
+  auto_contributed_bug_id?: string | null;
 }
 
 export async function searchCommand(
   error: string,
-  options: { type?: string; json?: boolean; model?: string; provider?: string }
+  options: {
+    type?: string;
+    json?: boolean;
+    model?: string;
+    provider?: string;
+    autoContribute?: boolean;
+    context?: string;
+  }
 ): Promise<void> {
   const spinner = ora("Searching AgentStack...").start();
 
@@ -46,6 +54,18 @@ export async function searchCommand(
     if (options.type) body.error_type = options.type;
     if (options.model) body.agent_model = options.model;
     if (options.provider) body.agent_provider = options.provider;
+    if (options.autoContribute) {
+      body.auto_contribute_on_miss = true;
+      if (options.context) {
+        try {
+          body.context_packet = JSON.parse(options.context);
+        } catch {
+          spinner.fail("Search failed");
+          console.error(chalk.red("`--context` must be valid JSON."));
+          process.exit(1);
+        }
+      }
+    }
 
     const data = await apiRequest<SearchResponse>("/api/v1/search/", {
       method: "POST",
@@ -61,6 +81,11 @@ export async function searchCommand(
 
     if (data.results.length === 0) {
       console.log(chalk.yellow("No matching solutions found."));
+      if (data.auto_contributed_bug_id) {
+        console.log(
+          chalk.cyan(`Question auto-contributed as bug ${data.auto_contributed_bug_id}.`)
+        );
+      }
       console.log(chalk.dim(`Search took ${data.search_time_ms}ms`));
       return;
     }

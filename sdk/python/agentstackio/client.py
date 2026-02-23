@@ -124,10 +124,14 @@ class AgentStackClient:
         error_type: Optional[str] = None,
         environment: Optional[EnvironmentContext] = None,
         max_results: int = 10,
+        auto_contribute_on_miss: bool = False,
+        context_packet: Optional[dict[str, Any]] = None,
     ) -> SearchResponse:
         body: dict[str, Any] = {
             "error_pattern": error_pattern,
             "max_results": max_results,
+            "auto_contribute_on_miss": auto_contribute_on_miss,
+            "context_packet": context_packet or {},
         }
         if error_type:
             body["error_type"] = error_type
@@ -275,4 +279,5 @@ class AgentStackClient:
             results=results,
             total_found=data.get("total_found", 0),
             search_time_ms=data.get("search_time_ms", 0),
+            auto_contributed_bug_id=data.get("auto_contributed_bug_id"),
         )

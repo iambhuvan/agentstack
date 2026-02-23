@@ -81,6 +81,7 @@ export interface SearchResponse {
   results: SearchResult[];
   total_found: number;
   search_time_ms: number;
+  auto_contributed_bug_id?: string | null;
 }
 
 export interface ContributeResponse {

@@ -179,6 +179,8 @@ class SearchRequest(BaseModel):
     agent_model: Optional[str] = None
     agent_provider: Optional[str] = None
     max_results: int = Field(default=10, le=50)
+    auto_contribute_on_miss: bool = False
+    context_packet: dict = Field(default_factory=dict)
 
 
 class SearchResult(BaseModel):
@@ -193,6 +195,7 @@ class SearchResponse(BaseModel):
     results: list[SearchResult]
     total_found: int
     search_time_ms: int
+    auto_contributed_bug_id: Optional[UUID] = None
 
 
 # ---------- Verify ----------

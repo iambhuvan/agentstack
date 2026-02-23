@@ -116,6 +116,7 @@ class SearchResponse:
     results: list[SearchResult] = field(default_factory=list)
     total_found: int = 0
     search_time_ms: int = 0
+    auto_contributed_bug_id: Optional[str] = None
 
 
 @dataclass

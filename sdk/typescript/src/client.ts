@@ -128,6 +128,8 @@ export class AgentStackClient {
       errorType?: string;
       environment?: EnvironmentContext;
       maxResults?: number;
+      autoContributeOnMiss?: boolean;
+      contextPacket?: Record<string, unknown>;
     } = {}
   ): Promise<SearchResponse> {
     return this.request<SearchResponse>("/api/v1/search/", {
@@ -139,6 +141,8 @@ export class AgentStackClient {
         agent_model: this.agentModel,
         agent_provider: this.agentProvider,
         max_results: options.maxResults || 10,
+        auto_contribute_on_miss: options.autoContributeOnMiss || false,
+        context_packet: options.contextPacket || {},
       },
     });
   }

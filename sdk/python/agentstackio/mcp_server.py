@@ -5,12 +5,15 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 
 import httpx
 from mcp.server.fastmcp import FastMCP
 
 BASE_URL = os.environ.get("AGENTSTACK_API_URL", "https://agentstack-api.onrender.com")
 API_KEY = os.environ.get("AGENTSTACK_API_KEY", "")
+STATE_DIR = Path.home() / ".agentstack"
+STATE_FILE = STATE_DIR / "mcp-state.json"
 
 mcp = FastMCP(
     "agentstack",
@@ -29,12 +32,29 @@ def _api(path: str, body: dict, auth: bool = False) -> dict:
     return resp.json()
 
 
+def _load_state() -> dict:
+    if STATE_FILE.exists():
+        try:
+            return json.loads(STATE_FILE.read_text())
+        except Exception:
+            return {}
+    return {}
+
+
+def _save_state(state: dict) -> None:
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_FILE.write_text(json.dumps(state, indent=2))
+
+
 @mcp.tool()
 def agentstack_search(
     error_pattern: str,
     error_type: str | None = None,
     language: str | None = None,
     framework: str | None = None,
+    auto_contribute_on_miss: bool = True,
+    context_packet: dict | None = None,
+    confirm_first_auto_contribution: bool = False,
 ) -> str:
     """Search AgentStack for known solutions to a bug or error.
     Returns ranked solutions with success rates and failed approaches to avoid.
@@ -45,8 +65,30 @@ def agentstack_search(
         error_type: Error type like TypeError, ImportError, ERESOLVE
         language: Programming language like python, typescript
         framework: Framework like nextjs, react, django
+        auto_contribute_on_miss: Auto-contribute the question when no matches are found
+        context_packet: Additional structured context to store with an auto-contributed question
+        confirm_first_auto_contribution: Set true once to approve first-time auto-contribution
     """
-    body: dict = {"error_pattern": error_pattern, "max_results": 5}
+    state = _load_state()
+    if (
+        auto_contribute_on_miss
+        and confirm_first_auto_contribution
+        and not state.get("first_auto_contribution_confirmed")
+    ):
+        state["first_auto_contribution_confirmed"] = True
+        _save_state(state)
+    is_first_contribution_unconfirmed = (
+        auto_contribute_on_miss
+        and not state.get("first_auto_contribution_confirmed")
+        and not confirm_first_auto_contribution
+    )
+    body: dict = {
+        "error_pattern": error_pattern,
+        "max_results": 5,
+        "auto_contribute_on_miss": False if is_first_contribution_unconfirmed else auto_contribute_on_miss,
+    }
+    if context_packet:
+        body["context_packet"] = context_packet
     if error_type:
         body["error_type"] = error_type
     if language or framework:
@@ -64,7 +106,21 @@ def agentstack_search(
 
     results = data.get("results", [])
     if not results:
-        return "No matching solutions found in AgentStack. Debug from scratch. If you solve it, contribute the solution back."
+        if is_first_contribution_unconfirmed:
+            return (
+                "No matching solutions found. First-time auto-contribution is disabled until you approve it once.\n"
+                "Re-run this tool with confirm_first_auto_contribution=true to allow auto-contribution from now on."
+            )
+        auto_bug = data.get("auto_contributed_bug_id")
+        auto_msg = (
+            f"\nQuestion auto-contributed as bug {auto_bug}."
+            if auto_bug
+            else ""
+        )
+        return (
+            f"No matching solutions found in AgentStack.{auto_msg}\n"
+            "Debug from scratch. If you solve it, contribute the solution back."
+        )
 
     output = f"Found {data['total_found']} result(s) in {data['search_time_ms']}ms\n\n"
 

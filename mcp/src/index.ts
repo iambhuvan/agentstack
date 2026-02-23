@@ -2,10 +2,19 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { mkdirSync, readFileSync, writeFileSync } from "fs";
+import { homedir } from "os";
+import { join } from "path";
 import { z } from "zod";
 
 const BASE_URL = process.env.AGENTSTACK_API_URL || "http://localhost:8000";
 const API_KEY = process.env.AGENTSTACK_API_KEY || "";
+const STATE_DIR = join(homedir(), ".agentstack");
+const STATE_FILE = join(STATE_DIR, "mcp-state.json");
+
+interface McpState {
+  first_auto_contribution_confirmed?: boolean;
+}
 
 async function apiRequest<T>(
   path: string,
@@ -31,6 +40,19 @@ async function apiRequest<T>(
   return res.json() as Promise<T>;
 }
 
+function loadState(): McpState {
+  try {
+    return JSON.parse(readFileSync(STATE_FILE, "utf-8")) as McpState;
+  } catch {
+    return {};
+  }
+}
+
+function saveState(state: McpState): void {
+  mkdirSync(STATE_DIR, { recursive: true });
+  writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+}
+
 const server = new McpServer({
   name: "agentstack",
   version: "0.1.0",
@@ -45,10 +67,35 @@ server.tool(
     error_type: z.string().optional().describe("Error type (e.g. TypeError, ImportError, ERESOLVE)"),
     language: z.string().optional().describe("Programming language (e.g. python, typescript)"),
     framework: z.string().optional().describe("Framework (e.g. nextjs, react, django)"),
+    auto_contribute_on_miss: z.boolean().optional().describe("When true (default), automatically contribute the question on miss"),
+    context_packet: z.record(z.string(), z.unknown()).optional().describe("Optional structured context stored only if the question is auto-contributed"),
+    confirm_first_auto_contribution: z.boolean().optional().describe("Set true once to approve first-time auto-contribution"),
   },
-  async ({ error_pattern, error_type, language, framework }) => {
+  async ({ error_pattern, error_type, language, framework, auto_contribute_on_miss, context_packet, confirm_first_auto_contribution }) => {
     try {
-      const body: Record<string, unknown> = { error_pattern, max_results: 5 };
+      const autoContributeRequested = auto_contribute_on_miss ?? true;
+      const state = loadState();
+      if (
+        autoContributeRequested &&
+        confirm_first_auto_contribution &&
+        !state.first_auto_contribution_confirmed
+      ) {
+        state.first_auto_contribution_confirmed = true;
+        saveState(state);
+      }
+      const isFirstContributionUnconfirmed =
+        autoContributeRequested &&
+        !state.first_auto_contribution_confirmed &&
+        !confirm_first_auto_contribution;
+
+      const body: Record<string, unknown> = {
+        error_pattern,
+        max_results: 5,
+        auto_contribute_on_miss: isFirstContributionUnconfirmed ? false : autoContributeRequested,
+      };
+      if (context_packet) {
+        body.context_packet = context_packet;
+      }
       if (error_type) body.error_type = error_type;
       if (language || framework) {
         body.environment = {
@@ -78,15 +125,35 @@ server.tool(
         }>;
         total_found: number;
         search_time_ms: number;
+        auto_contributed_bug_id?: string | null;
       }>("/api/v1/search/", { method: "POST", body });
 
       if (data.results.length === 0) {
+        if (isFirstContributionUnconfirmed) {
+          return {
+            structuredContent: {
+              ok: true,
+              total_found: 0,
+              results: [],
+              needs_first_contribution_permission: true,
+            },
+            content: [
+              {
+                type: "text" as const,
+                text: "No matching solutions found. First-time auto-contribution is disabled until you approve it once. Re-run this tool with `confirm_first_auto_contribution=true` to allow auto-contribution from now on.",
+              },
+            ],
+          };
+        }
+        const autoContributedId = data.auto_contributed_bug_id
+          ? `\nQuestion auto-contributed as bug ${data.auto_contributed_bug_id}.`
+          : "";
         return {
           structuredContent: { ok: true, total_found: 0, results: [] },
           content: [
             {
               type: "text" as const,
-              text: "No matching solutions found in AgentStack. You'll need to debug this from scratch. If you solve it, consider contributing the solution back.",
+              text: `No matching solutions found in AgentStack.${autoContributedId}\nYou'll need to debug this from scratch. If you solve it, consider contributing the solution back.`,
             },
           ],
         };

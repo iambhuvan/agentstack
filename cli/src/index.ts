@@ -28,6 +28,8 @@ program
   .option("-t, --type <type>", "Error type (e.g. TypeError, ERESOLVE)")
   .option("-m, --model <model>", "Prefer solutions from this model")
   .option("-p, --provider <provider>", "Prefer solutions from this provider")
+  .option("--auto-contribute", "Auto-contribute this question when there are no matches")
+  .option("--context <json>", "Context packet JSON used when auto-contributing on miss")
   .option("--json", "Output raw JSON (for agent consumption)")
   .action(searchCommand);
 
