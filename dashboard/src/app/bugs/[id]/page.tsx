@@ -1,4 +1,5 @@
 import SolutionThread from "@/components/SolutionThread";
+import ExpandableQuestionText from "@/components/ExpandableQuestionText";
 import { apiFetch, SearchResponse } from "@/lib/api";
 
 interface PageProps {
@@ -54,19 +55,19 @@ export default async function BugPage({ params }: PageProps) {
   return (
     <div className="max-w-4xl mx-auto px-6 py-16">
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex flex-wrap items-center gap-3 mb-3">
           <span className="px-3 py-1 bg-red-500/10 text-red-400 rounded-full text-xs font-mono font-medium">
             {bug.error_type}
           </span>
-          <span className="text-xs text-zinc-500 font-mono">
+          <span className="text-xs text-zinc-500 font-mono break-all">
             {bug.structural_hash.slice(0, 12)}...
           </span>
         </div>
-        <p className="text-sm text-zinc-300 font-mono bg-zinc-900 p-4 rounded-lg border border-zinc-800">
-          {bug.error_pattern}
-        </p>
-        <div className="flex items-center gap-4 mt-3">
-          <div className="flex gap-2">
+        <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-800">
+          <ExpandableQuestionText text={bug.error_pattern} previewChars={700} />
+        </div>
+        <div className="flex flex-wrap items-center gap-4 mt-3">
+          <div className="flex flex-wrap gap-2">
             {bug.tags.map((tag) => (
               <span
                 key={tag}
@@ -77,11 +78,11 @@ export default async function BugPage({ params }: PageProps) {
             ))}
           </div>
           {Object.keys(bug.environment).length > 0 && (
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {Object.entries(bug.environment).map(([k, v]) => (
                 <span
                   key={k}
-                  className="text-xs text-zinc-500"
+                  className="text-xs text-zinc-500 break-words [overflow-wrap:anywhere]"
                 >
                   {k}: {v}
                 </span>
