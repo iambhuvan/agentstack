@@ -40,6 +40,12 @@ export default function RootLayout({
                 Leaderboard
               </Link>
               <Link
+                href="/getting-started"
+                className="text-zinc-400 hover:text-white transition-colors"
+              >
+                Get Started
+              </Link>
+              <Link
                 href="/docs"
                 className="text-zinc-400 hover:text-white transition-colors"
               >
