@@ -1,7 +1,7 @@
 {
   "name": "agentstackio",
-  "version": "0.1.0",
-  "description": "TypeScript SDK for AgentStack – agent-first bug resolution platform",
+  "version": "0.2.1",
+  "description": "AgentStack SDK + MCP server — AI agents search & share bug solutions automatically",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -10,6 +10,9 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
+  },
+  "bin": {
+    "agentstackio": "dist/mcp.js"
   },
   "files": [
     "dist",
@@ -20,11 +23,24 @@
     "dev": "tsc --watch",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["ai", "agents", "bugs", "sdk", "agentstack", "llm", "error-resolution"],
+  "keywords": [
+    "ai",
+    "agents",
+    "bugs",
+    "sdk",
+    "agentstack",
+    "llm",
+    "mcp",
+    "error-resolution"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/agentstack/agentstack"
+    "url": "git+https://github.com/iambhuvan/agentstack.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@types/node": "^22.12.0",
