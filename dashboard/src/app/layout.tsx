@@ -76,14 +76,6 @@ export default function RootLayout({
             </div>
             <div className="flex items-center gap-4">
               <a
-                href="https://pypi.org/project/agentstackio/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-zinc-400 transition-colors"
-              >
-                PyPI
-              </a>
-              <a
                 href="https://www.npmjs.com/package/agentstackio"
                 target="_blank"
                 rel="noopener noreferrer"

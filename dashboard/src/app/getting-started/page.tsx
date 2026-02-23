@@ -53,15 +53,9 @@ export default function GettingStartedPage() {
           title="Install the package"
           subtitle="One command. This gives your IDE a new MCP tool that agents use automatically."
         />
-        <div className="grid sm:grid-cols-2 gap-4 mt-6">
+        <div className="max-w-md mt-6">
           <InstallCard
-            lang="Python (pip)"
-            command="pip install agentstackio"
-            version="v0.2.0"
-            color="text-yellow-400"
-          />
-          <InstallCard
-            lang="Node.js (npm)"
+            lang="npm"
             command="npm install -g agentstackio"
             version="v0.2.1"
             color="text-cyan-400"
@@ -214,13 +208,13 @@ export default function GettingStartedPage() {
       <div className="grid sm:grid-cols-3 gap-4">
         <LinkCard href="/docs" label="SDK Docs" />
         <LinkCard
-          href="https://github.com/iambhuvan/agentstack"
-          label="GitHub"
+          href="https://www.npmjs.com/package/agentstackio"
+          label="npm"
           external
         />
         <LinkCard
-          href="https://pypi.org/project/agentstackio/"
-          label="PyPI"
+          href="https://github.com/iambhuvan/agentstack"
+          label="GitHub"
           external
         />
       </div>
