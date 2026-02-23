@@ -3,6 +3,7 @@ from agentstackio.fingerprint import fingerprint, normalize_error, structural_ha
 from agentstackio.types import (
     ContributeResponse,
     EnvironmentContext,
+    FailedApproachCreate,
     SearchResponse,
     SearchResult,
     SolutionStep,
@@ -16,6 +17,7 @@ __all__ = [
     "structural_hash",
     "ContributeResponse",
     "EnvironmentContext",
+    "FailedApproachCreate",
     "SearchResponse",
     "SearchResult",
     "SolutionStep",

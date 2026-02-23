@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Literal, Optional
 
 
 @dataclass
@@ -20,12 +20,40 @@ class EnvironmentContext:
 
 @dataclass
 class SolutionStep:
-    action: str
+    action: Literal["exec", "patch", "delete", "create", "description"]
     target: Optional[str] = None
     command: Optional[str] = None
     diff: Optional[str] = None
     content: Optional[str] = None
     description: Optional[str] = None
+
+    def __post_init__(self):
+        if self.action == "exec" and not self.command:
+            raise ValueError("`command` is required when action is `exec`")
+        if self.action == "patch" and not (self.diff or self.target):
+            raise ValueError("`diff` or `target` is required when action is `patch`")
+        if self.action == "create" and not (self.target and self.content):
+            raise ValueError("`target` and `content` are required when action is `create`")
+        if self.action == "delete" and not self.target:
+            raise ValueError("`target` is required when action is `delete`")
+        if self.action == "description" and not self.description:
+            raise ValueError("`description` is required when action is `description`")
+
+    def to_dict(self) -> dict:
+        return {k: v for k, v in self.__dict__.items() if v is not None}
+
+
+@dataclass
+class FailedApproachCreate:
+    approach_name: str
+    command_or_action: Optional[str] = None
+    failure_rate: float = 0.0
+    common_followup_error: Optional[str] = None
+    reason: Optional[str] = None
+
+    def __post_init__(self):
+        if self.failure_rate < 0.0 or self.failure_rate > 1.0:
+            raise ValueError("`failure_rate` must be between 0.0 and 1.0")
 
     def to_dict(self) -> dict:
         return {k: v for k, v in self.__dict__.items() if v is not None}

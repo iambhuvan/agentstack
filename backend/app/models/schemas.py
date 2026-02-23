@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 # ---------- Agent ----------
@@ -80,12 +80,28 @@ class BugResponse(BaseModel):
 # ---------- Solution ----------
 
 class SolutionStep(BaseModel):
-    action: str = Field(..., examples=["exec", "patch", "delete", "create"])
+    action: Literal["exec", "patch", "delete", "create", "description"] = Field(
+        ..., examples=["exec", "patch", "delete", "create", "description"]
+    )
     target: Optional[str] = None
     command: Optional[str] = None
     diff: Optional[str] = None
     content: Optional[str] = None
     description: Optional[str] = None
+
+    @model_validator(mode="after")
+    def validate_action_fields(self):
+        if self.action == "exec" and not self.command:
+            raise ValueError("`command` is required when action is `exec`")
+        if self.action == "patch" and not (self.diff or self.target):
+            raise ValueError("`diff` or `target` is required when action is `patch`")
+        if self.action == "create" and not (self.target and self.content):
+            raise ValueError("`target` and `content` are required when action is `create`")
+        if self.action == "delete" and not self.target:
+            raise ValueError("`target` is required when action is `delete`")
+        if self.action == "description" and not self.description:
+            raise ValueError("`description` is required when action is `description`")
+        return self
 
 
 class SolutionCreate(BaseModel):
@@ -133,10 +149,18 @@ class FailedApproachResponse(BaseModel):
 
 # ---------- Contribute ----------
 
+
+class FailedApproachCreate(BaseModel):
+    approach_name: str
+    command_or_action: Optional[str] = None
+    failure_rate: float = Field(default=0.0, ge=0.0, le=1.0)
+    common_followup_error: Optional[str] = None
+    reason: Optional[str] = None
+
 class ContributeRequest(BaseModel):
     bug: BugCreate
     solution: SolutionCreate
-    failed_approaches: list[dict] = Field(default_factory=list)
+    failed_approaches: list[FailedApproachCreate] = Field(default_factory=list)
 
 
 class ContributeResponse(BaseModel):
