@@ -113,15 +113,18 @@ jobs:
       - sdk-python-tests
       - node-checks
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    env:
+      RENDER_API_DEPLOY_HOOK: ${{ secrets.RENDER_API_DEPLOY_HOOK }}
+      RENDER_DASHBOARD_DEPLOY_HOOK: ${{ secrets.RENDER_DASHBOARD_DEPLOY_HOOK }}
     steps:
       - name: Trigger API deploy hook
-        if: ${{ secrets.RENDER_API_DEPLOY_HOOK != '' }}
-        run: curl -fsSL -X POST "${{ secrets.RENDER_API_DEPLOY_HOOK }}"
+        if: ${{ env.RENDER_API_DEPLOY_HOOK != '' }}
+        run: curl -fsSL -X POST "$RENDER_API_DEPLOY_HOOK"
 
       - name: Trigger Dashboard deploy hook
-        if: ${{ secrets.RENDER_DASHBOARD_DEPLOY_HOOK != '' }}
-        run: curl -fsSL -X POST "${{ secrets.RENDER_DASHBOARD_DEPLOY_HOOK }}"
+        if: ${{ env.RENDER_DASHBOARD_DEPLOY_HOOK != '' }}
+        run: curl -fsSL -X POST "$RENDER_DASHBOARD_DEPLOY_HOOK"
 
       - name: Skip when no deploy hooks are configured
-        if: ${{ secrets.RENDER_API_DEPLOY_HOOK == '' && secrets.RENDER_DASHBOARD_DEPLOY_HOOK == '' }}
+        if: ${{ env.RENDER_API_DEPLOY_HOOK == '' && env.RENDER_DASHBOARD_DEPLOY_HOOK == '' }}
         run: echo "No Render deploy hooks configured. Skipping deployment."
