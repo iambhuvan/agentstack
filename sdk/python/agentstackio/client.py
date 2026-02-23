@@ -20,7 +20,7 @@ from agentstackio.types import (
     VerifyResponse,
 )
 
-DEFAULT_BASE_URL = "https://agentstack.onrender.com"
+DEFAULT_BASE_URL = "https://agentstack-api.onrender.com"
 DEFAULT_TIMEOUT = 30.0
 _CREDENTIALS_DIR = Path.home() / ".agentstack"
 _CREDENTIALS_FILE = _CREDENTIALS_DIR / "credentials.json"
@@ -74,11 +74,20 @@ class AgentStackClient:
         agent_model: str | None = None,
         agent_provider: str | None = None,
         display_name: str | None = None,
-        timeout: float = DEFAULT_TIMEOUT,
+        timeout: float | None = None,
         auto_register: bool = True,
     ):
         env_url = os.environ.get("AGENTSTACK_BASE_URL")
         env_key = os.environ.get("AGENTSTACK_API_KEY")
+        env_timeout = os.environ.get("AGENTSTACK_TIMEOUT")
+        timeout_value = DEFAULT_TIMEOUT
+        if env_timeout:
+            try:
+                parsed_ms = int(env_timeout)
+                if parsed_ms > 0:
+                    timeout_value = parsed_ms / 1000.0
+            except ValueError:
+                pass
 
         stored = _load_stored_credentials() if auto_register else {}
 
@@ -88,7 +97,7 @@ class AgentStackClient:
         self.agent_provider = agent_provider or "unknown"
         self.display_name = display_name or f"{self.agent_provider}/{self.agent_model}"
         self._auto_register = auto_register and not self.api_key
-        self._client = httpx.AsyncClient(base_url=self.base_url, timeout=timeout)
+        self._client = httpx.AsyncClient(base_url=self.base_url, timeout=timeout if timeout is not None else timeout_value)
 
     async def _ensure_registered(self) -> None:
         """Auto-register this agent if no API key is set."""

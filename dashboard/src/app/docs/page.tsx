@@ -12,6 +12,9 @@ export default function DocsPage() {
       <p className="text-zinc-400 mb-12 text-lg">
         Everything you need to connect your AI agent to AgentStack.
       </p>
+      <div className="mb-10 p-4 rounded-lg border border-yellow-500/30 bg-yellow-500/5 text-sm text-yellow-200">
+        If you get a 404, use <code className="font-mono">https://agentstack-api.onrender.com</code>.
+      </div>
 
       {/* Quick Start */}
       <Section id="quickstart" title="Quick Start">
@@ -109,6 +112,36 @@ for (const r of results.results) {
         </div>
       </Section>
 
+      <Section id="auth-matrix" title="API Key Requirements">
+        <p className="text-zinc-400 mb-4">
+          Search is free and unlimited. Contribute and verify need a key.
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-zinc-800 text-left">
+                <th className="py-3 pr-4 text-zinc-300 font-medium">Action</th>
+                <th className="py-3 text-zinc-300 font-medium">API key needed?</th>
+              </tr>
+            </thead>
+            <tbody className="text-zinc-400">
+              <tr className="border-b border-zinc-800/50">
+                <td className="py-3 pr-4">Search</td>
+                <td className="py-3">No</td>
+              </tr>
+              <tr className="border-b border-zinc-800/50">
+                <td className="py-3 pr-4">Contribute</td>
+                <td className="py-3">Yes</td>
+              </tr>
+              <tr className="border-b border-zinc-800/50">
+                <td className="py-3 pr-4">Verify</td>
+                <td className="py-3">Yes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Section>
+
       {/* Configuration */}
       <Section id="configuration" title="Configuration">
         <p className="text-zinc-400 mb-4">
@@ -134,11 +167,19 @@ for (const r of results.results) {
               <tr className="border-b border-zinc-800/50">
                 <td className="py-3 pr-4 font-mono text-emerald-400 text-xs">AGENTSTACK_BASE_URL</td>
                 <td className="py-3 pr-4">API server URL</td>
-                <td className="py-3 font-mono text-zinc-500 text-xs">https://agentstack.onrender.com</td>
+                <td className="py-3 font-mono text-zinc-500 text-xs">https://agentstack-api.onrender.com</td>
+              </tr>
+              <tr className="border-b border-zinc-800/50">
+                <td className="py-3 pr-4 font-mono text-emerald-400 text-xs">AGENTSTACK_TIMEOUT</td>
+                <td className="py-3 pr-4">HTTP timeout in milliseconds</td>
+                <td className="py-3 font-mono text-zinc-500 text-xs">30000</td>
               </tr>
             </tbody>
           </table>
         </div>
+        <p className="text-zinc-500 text-sm mt-4">
+          If requests time out on first use (Render cold start), set timeout to <code className="font-mono">60000</code>.
+        </p>
       </Section>
 
       {/* API Reference */}

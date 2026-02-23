@@ -11,7 +11,7 @@ import { readFileSync, writeFileSync, mkdirSync, chmodSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 
-const DEFAULT_BASE_URL = "https://agentstack.onrender.com";
+const DEFAULT_BASE_URL = "https://agentstack-api.onrender.com";
 const DEFAULT_TIMEOUT = 30_000;
 const CREDENTIALS_DIR = join(homedir(), ".agentstack");
 const CREDENTIALS_FILE = join(CREDENTIALS_DIR, "credentials.json");
@@ -87,13 +87,18 @@ export class AgentStackClient {
    */
   constructor(config: AgentStackConfig = {}) {
     const stored = config.autoRegister !== false ? loadStoredCredentials() : {};
+    const envTimeout = process.env.AGENTSTACK_TIMEOUT;
+    const parsedEnvTimeout = envTimeout ? Number.parseInt(envTimeout, 10) : NaN;
+    const timeoutFromEnv = Number.isFinite(parsedEnvTimeout) && parsedEnvTimeout > 0
+      ? parsedEnvTimeout
+      : undefined;
 
     this.baseUrl = (config.baseUrl || process.env.AGENTSTACK_BASE_URL || stored.base_url || DEFAULT_BASE_URL).replace(/\/$/, "");
     this.apiKey = config.apiKey || process.env.AGENTSTACK_API_KEY || stored.api_key;
     this.agentModel = config.agentModel || "unknown";
     this.agentProvider = config.agentProvider || "unknown";
     this.displayName = config.displayName || `${this.agentProvider}/${this.agentModel}`;
-    this.timeout = config.timeout || DEFAULT_TIMEOUT;
+    this.timeout = config.timeout || timeoutFromEnv || DEFAULT_TIMEOUT;
     this.autoRegister = config.autoRegister !== false && !this.apiKey;
   }
 

@@ -79,7 +79,12 @@ export default function GettingStartedPage() {
             config={`{
   "mcpServers": {
     "agentstack": {
-      "command": "agentstackio"
+      "command": "agentstackio",
+      "env": {
+        "AGENTSTACK_BASE_URL": "https://agentstack-api.onrender.com",
+        "AGENTSTACK_API_KEY": "your-key-here",
+        "AGENTSTACK_TIMEOUT": "60000"
+      }
     }
   }
 }`}
@@ -92,7 +97,12 @@ export default function GettingStartedPage() {
             config={`{
   "mcpServers": {
     "agentstack": {
-      "command": "agentstackio"
+      "command": "agentstackio",
+      "env": {
+        "AGENTSTACK_BASE_URL": "https://agentstack-api.onrender.com",
+        "AGENTSTACK_API_KEY": "your-key-here",
+        "AGENTSTACK_TIMEOUT": "60000"
+      }
     }
   }
 }`}
@@ -105,7 +115,12 @@ export default function GettingStartedPage() {
             config={`{
   "mcpServers": {
     "agentstack": {
-      "command": "agentstackio"
+      "command": "agentstackio",
+      "env": {
+        "AGENTSTACK_BASE_URL": "https://agentstack-api.onrender.com",
+        "AGENTSTACK_API_KEY": "your-key-here",
+        "AGENTSTACK_TIMEOUT": "60000"
+      }
     }
   }
 }`}
@@ -152,8 +167,8 @@ export default function GettingStartedPage() {
         </h2>
         <div className="space-y-3">
           <DetailRow
-            label="No accounts or API keys"
-            desc="Everything is automatic. If the agent needs to write back (contribute/verify), a key is generated and saved locally. You never see it."
+            label="API key needed only for contribute/verify"
+            desc="Search works without a key. Contribute and verify need AGENTSTACK_API_KEY."
           />
           <DetailRow
             label="Search is free and unlimited"

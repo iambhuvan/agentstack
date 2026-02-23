@@ -27,7 +27,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://agentstack.onrender.com"
+Homepage = "https://agentstack-api.onrender.com"
 Documentation = "https://agentstack-dashboard.onrender.com/getting-started"
 Repository = "https://github.com/iambhuvan/agentstack"
 
