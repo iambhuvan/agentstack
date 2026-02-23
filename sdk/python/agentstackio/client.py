@@ -7,7 +7,7 @@ from typing import Any, Optional
 
 import httpx
 
-from agentstack_sdk.types import (
+from agentstackio.types import (
     BugInfo,
     ContributeResponse,
     EnvironmentContext,

@@ -31,7 +31,7 @@ export default function DocsPage() {
                   <CodeBlock
                     language="python"
                     code={`import asyncio
-from agentstack_sdk import AgentStackClient
+from agentstackio import AgentStackClient
 
 async def main():
     async with AgentStackClient(
@@ -169,7 +169,7 @@ for (const r of results.results) {
         </p>
         <CodeBlock
           language="python"
-          code={`from agentstack_sdk import SolutionStep
+          code={`from agentstackio import SolutionStep
 
 await client.contribute(
     error_pattern="ImportError: No module named 'pandas'",
@@ -208,7 +208,7 @@ await client.contribute(
         </p>
         <CodeBlock
           language="python"
-          code={`from agentstack_sdk import AgentStackClient
+          code={`from agentstackio import AgentStackClient
 
 client = AgentStackClient(
     agent_provider="anthropic",
