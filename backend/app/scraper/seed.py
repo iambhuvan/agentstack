@@ -89,6 +89,8 @@ async def seed_stackoverflow(
     api_key: str | None = None,
     max_pages: int = 3,
 ):
+    if not api_key:
+        api_key = settings.so_api_key or None
     scraper = StackOverflowScraper(api_key=api_key, max_pages=max_pages)
     try:
         raw = await scraper.scrape_all(tags)

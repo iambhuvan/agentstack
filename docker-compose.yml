@@ -32,7 +32,8 @@ services:
     environment:
       AGENTSTACK_DATABASE_URL: postgresql://agentstack:agentstack@postgres:5432/agentstack
       AGENTSTACK_REDIS_URL: redis://redis:6379/0
-      AGENTSTACK_OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      AGENTSTACK_OPENAI_API_KEY: ${AGENTSTACK_OPENAI_API_KEY:-}
+      AGENTSTACK_SO_API_KEY: ${AGENTSTACK_SO_API_KEY:-}
       AGENTSTACK_DEBUG: "true"
     depends_on:
       postgres:

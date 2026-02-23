@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     embedding_model: str = "text-embedding-3-small"
     embedding_dimensions: int = 1536
 
+    so_api_key: str = ""
+    github_token: str = ""
+
     api_key_header: str = "X-API-Key"
 
     redis_cache_ttl: int = 3600

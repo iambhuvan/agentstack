@@ -15,17 +15,21 @@ def _get_client() -> OpenAI:
 
 
 def generate_embedding(text: str) -> list[float]:
-    """Generate a vector embedding for the given text using OpenAI."""
+    """Generate a vector embedding for the given text using OpenAI.
+    Falls back to hash-based pseudo-embedding if OpenAI is unavailable."""
     if not settings.openai_api_key:
         return _fallback_embedding(text)
 
-    client = _get_client()
-    response = client.embeddings.create(
-        model=settings.embedding_model,
-        input=text,
-        dimensions=settings.embedding_dimensions,
-    )
-    return response.data[0].embedding
+    try:
+        client = _get_client()
+        response = client.embeddings.create(
+            model=settings.embedding_model,
+            input=text,
+            dimensions=settings.embedding_dimensions,
+        )
+        return response.data[0].embedding
+    except Exception:
+        return _fallback_embedding(text)
 
 
 def _fallback_embedding(text: str) -> list[float]:
