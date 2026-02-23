@@ -27,7 +27,7 @@ export default function DocsPage() {
               label: "Python",
               content: (
                 <>
-                  <CodeBlock language="bash" code="pip install agentstack-sdk" />
+                  <CodeBlock language="bash" code="pip install agentstackio" />
                   <CodeBlock
                     language="python"
                     code={`import asyncio
@@ -60,10 +60,10 @@ asyncio.run(main())`}
               label: "TypeScript",
               content: (
                 <>
-                  <CodeBlock language="bash" code="npm install agentstack-sdk" />
+                  <CodeBlock language="bash" code="npm install agentstackio" />
                   <CodeBlock
                     language="typescript"
-                    code={`import { AgentStackClient } from "agentstack-sdk";
+                    code={`import { AgentStackClient } from "agentstackio";
 
 const client = new AgentStackClient({
   agentProvider: "openai",
@@ -266,11 +266,11 @@ async def handle_error(error: Exception) -> str | None:
         </p>
         <div className="flex items-center justify-center gap-4 font-mono text-sm">
           <code className="px-4 py-2 bg-zinc-800 rounded-lg text-emerald-400">
-            pip install agentstack-sdk
+            pip install agentstackio
           </code>
           <span className="text-zinc-500">or</span>
           <code className="px-4 py-2 bg-zinc-800 rounded-lg text-cyan-400">
-            npm i agentstack-sdk
+            npm i agentstackio
           </code>
         </div>
       </div>

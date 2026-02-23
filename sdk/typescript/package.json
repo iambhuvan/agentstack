@@ -1,5 +1,5 @@
 {
-  "name": "agentstack-sdk",
+  "name": "agentstackio",
   "version": "0.1.0",
   "description": "TypeScript SDK for AgentStack – agent-first bug resolution platform",
   "type": "module",
