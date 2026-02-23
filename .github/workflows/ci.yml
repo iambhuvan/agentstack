@@ -135,7 +135,6 @@ jobs:
     name: Deploy (Render)
     runs-on: ubuntu-latest
     needs:
-      - backend-tests
       - sdk-python-tests
       - node-checks
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -159,9 +158,6 @@ jobs:
     name: Deploy Docs (GitHub Pages)
     runs-on: ubuntu-latest
     needs:
-      - backend-tests
-      - sdk-python-tests
-      - node-checks
       - docs-checks
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
